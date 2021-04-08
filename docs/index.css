@@ -1,0 +1,5 @@
+.background-image {
+    background: rgba(0, 0, 0, 0) no-repeat fixed center center;
+    background-image: url('bg/3.jpeg');
+    background-size: cover;
+}
