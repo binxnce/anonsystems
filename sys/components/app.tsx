@@ -9,7 +9,7 @@ import { UserRejectedRequestError as UserRejectedRequestErrorFrame } from '@web3
 import { Web3Provider } from '@ethersproject/providers'
 import { formatEther } from '@ethersproject/units'
 
-import { useEagerConnect, useInactiveListener } from '../../hooks'
+import { useEagerConnect, useInactiveListener } from '../hooks'
 import {
   injected,
   network,
@@ -24,8 +24,8 @@ import {
   magic,
   portis,
   torus
-} from '../../connectors'
-import { Spinner } from '../../components/Spinner'
+} from '../connectors'
+import { Spinner } from './Spinner'
 
 enum ConnectorNames {
   Injected = 'Injected',

@@ -1,3 +1,6 @@
+import Head from 'next/head'
+import Image from 'next/image'
+import styles from './layout.module.css'
 import Link from 'next/link'
 import {useEffect} from "react";
 
@@ -50,7 +53,7 @@ export default function Layout({ children, page }) {
                     <div className="container">
                         <div className="navbar-brand">
                             <a className="navbar-item">
-                                <img src="/img/logo.png" alt="Logo" width="400px" height="400px"/>
+                                <Image src="/img/logo.png" alt="Logo" width="100px" height="100px"/>
                             </a>
                             <span className="navbar-burger" data-target="navbarMenuHeroC">
             <span></span>
