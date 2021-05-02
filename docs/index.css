@@ -1,0 +1,8 @@
+.background-image {
+    background: rgba(0, 0, 0, 0) url('bg/3.jpeg') no-repeat fixed center center;
+    background-size: cover;
+}
+
+.panda {
+    display: none;
+}
