@@ -26,6 +26,8 @@ import {
   torus
 } from '../connectors'
 import { Spinner } from './Spinner'
+import {uuid} from "@walletconnect/utils";
+import Image from "next/image";
 
 enum ConnectorNames {
   Injected = 'Metamask',
@@ -263,37 +265,30 @@ function App() {
                         const disabled = !triedEager || !!activatingConnector || connected || !!error
 
                         return (
-                            <button
-                               className="button"
-                                disabled={disabled}
-                                key={name}
-                                onClick={() => {
-                                    setActivatingConnector(currentConnector)
-                                    activate(connectorsByName[name])
-                                    setShowLogin(false)
-                                }}
-                            >
-                                <div
-                                    style={{
-                                        position: 'absolute',
-                                        top: '0',
-                                        left: '0',
-                                        height: '100%',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        color: 'black',
-                                        margin: '0 0 0 1rem'
-                                    }}
+<>
+    <div className="tile is-parent is-6 is-clickable" onClick={() => {
+        setActivatingConnector(currentConnector)
+        activate(connectorsByName[name])
+        setShowLogin(false)
+    }}      key={name}>
+        <article className="tile is-child notification is-info">
+            <p className="subtitle">
+
+
+                {name}
+                                <span className="p-2"
                                 >
-                                    {activating && <Spinner color={'black'} style={{height: '25%', marginLeft: '-1rem'}}/>}
+                                 {activating && <Spinner color={'black'} style={{height: '25%', marginLeft: '-1rem'}}/>}
                                     {connected && (
                                         <span role="img" aria-label="check">
                     ✅
                   </span>
                                     )}
-                                </div>
-                                {name}
-                            </button>
+                                </span>
+                                </p>
+        </article>
+    </div>
+                            </>
                         )
                     })}
                 </div>
@@ -304,12 +299,80 @@ function App() {
     }
     const [showLogin, setShowLogin] = React.useState(false)
     const loginButton = () => setShowLogin(true)
+
+    const [signedMessage, setSignedMessage] = React.useState({signature: "", status: "", signed: false})
+    const max = 1271012
+
+    function sign() {
+        // The UUID would ideally be generated from a backend
+        return library
+            .getSigner(account)
+            .signMessage(`{
+                                "address": "` + account + `",
+                                "uuid": "` + uuid() + `",
+                                "timestamp: ` + new Date().getTime() + `,
+                            }`)
+            .then((signature: any) => {
+                setSignedMessage({signature: signature, status: "", signed: true})
+            })
+            .catch((error: any) => {
+                setSignedMessage({signature: "", status: (error && error.message ? `\n\n${error.message}` : ''), signed: false})
+            })
+    }
+
+    function getPortrait(account: string) {
+      let num = parseInt(account.substring(0, 4), 16)
+        let suffixNum = num.toString()
+        if (num < 1000) {
+            let digits = (num < 10 ? 3 :
+                (num < 100 ? 2 : 1))
+            suffixNum = "0".repeat(digits) + suffixNum
+
+        }
+        return "https://storage.googleapis.com/anon-sys/portraits/seed" + suffixNum + ".png";
+    }
+
+    function showPortrait() {
+        if (!active || !signedMessage.signed) {
+            return (<></>)
+        }
+
+        return (
+            <>
+            <div className="block">
+
+                <div className="tile is-ancestor">
+                <div className="tile is-parent">
+                    <article className="tile is-child notification has-background-primary-dark">
+                        <p className="title">Hello anon</p>
+                            <Image src={getPortrait(account)} alt="Logo" width="300px" height="300px" className="block is-inline-block"/>
+                    </article>
+                </div>
+
+                <div className="tile is-parent">
+                    <article className="tile is-child notification has-background-success-dark">
+                        <p className="title">Nothing much here yet</p>
+                        <p className="subtitle">...</p>
+                        <div className="content">
+
+                        </div>
+                    </article>
+                </div>
+                </div>
+            </div>
+</>
+            )
+    }
+
     return (
     <>
-        { active ? <Header/>: null }
+        { active ? <span className="is-hidden"><Header/></span> : null }
 
         <hr style={{margin: '2rem'}}/>
         <div>
+
+
+            {showPortrait()}
 
 
             <div className="buttons container">
@@ -336,138 +399,18 @@ function App() {
                 margin: 'auto'
             }}
         >
-            {!!(library && account) && (
+            {!!(library && account && !signedMessage.signed) && (
                 <button
                     className="hero-buttons button"
                     onClick={() => {
-                        library
-                            .getSigner(account)
-                            .signMessage('👋')
-                            .then((signature: any) => {
-                                window.alert(`Success!\n\n${signature}`)
-                            })
-                            .catch((error: any) => {
-                                window.alert('Failure!' + (error && error.message ? `\n\n${error.message}` : ''))
-                            })
+                        sign();
                     }}
                 >
                     Sign Message
                 </button>
             )}
-            {!!(connector === connectorsByName[ConnectorNames.Network] && chainId) && (
-                <button
-                    style={{
-                        height: '3rem',
-                        borderRadius: '1rem',
-                        cursor: 'pointer'
-                    }}
-                    onClick={() => {
-                        ;(connector as any).changeChainId(chainId === 1 ? 4 : 1)
-                    }}
-                >
-                    Switch Networks
-                </button>
-            )}
-            {connector === connectorsByName[ConnectorNames.WalletConnect] && (
-                <button
-                    style={{
-                        height: '3rem',
-                        borderRadius: '1rem',
-                        cursor: 'pointer'
-                    }}
-                    onClick={() => {
-                        ;(connector as any).close()
-                    }}
-                >
-                    Kill WalletConnect Session
-                </button>
-            )}
-            {connector === connectorsByName[ConnectorNames.WalletLink] && (
-                <button
-                    style={{
-                        height: '3rem',
-                        borderRadius: '1rem',
-                        cursor: 'pointer'
-                    }}
-                    onClick={() => {
-                        ;(connector as any).close()
-                    }}
-                >
-                    Kill WalletLink Session
-                </button>
-            )}
-            {connector === connectorsByName[ConnectorNames.Fortmatic] && (
-                <button
-                    style={{
-                        height: '3rem',
-                        borderRadius: '1rem',
-                        cursor: 'pointer'
-                    }}
-                    onClick={() => {
-                        ;(connector as any).close()
-                    }}
-                >
-                    Kill Fortmatic Session
-                </button>
-            )}
-            {connector === connectorsByName[ConnectorNames.Magic] && (
-                <button
-                    style={{
-                        height: '3rem',
-                        borderRadius: '1rem',
-                        cursor: 'pointer'
-                    }}
-                    onClick={() => {
-                        ;(connector as any).close()
-                    }}
-                >
-                    Kill Magic Session
-                </button>
-            )}
-            {connector === connectorsByName[ConnectorNames.Portis] && (
-                <>
-                    {chainId !== undefined && (
-                        <button
-                            style={{
-                                height: '3rem',
-                                borderRadius: '1rem',
-                                cursor: 'pointer'
-                            }}
-                            onClick={() => {
-                                ;(connector as any).changeNetwork(chainId === 1 ? 100 : 1)
-                            }}
-                        >
-                            Switch Networks
-                        </button>
-                    )}
-                    <button
-                        style={{
-                            height: '3rem',
-                            borderRadius: '1rem',
-                            cursor: 'pointer'
-                        }}
-                        onClick={() => {
-                            ;(connector as any).close()
-                        }}
-                    >
-                        Kill Portis Session
-                    </button>
-                </>
-            )}
-            {connector === connectorsByName[ConnectorNames.Torus] && (
-                <button
-                    style={{
-                        height: '3rem',
-                        borderRadius: '1rem',
-                        cursor: 'pointer'
-                    }}
-                    onClick={() => {
-                        ;(connector as any).close()
-                    }}
-                >
-                    Kill Torus Session
-                </button>
-            )}
+            <span>{signedMessage.status}</span>
+
         </div>
     </>
   )
