@@ -247,6 +247,12 @@ function App() {
     }
   }, [activatingConnector, connector])
 
+    React.useEffect(() => {
+        if (active) {
+            sign()
+        }
+    }, [active])
+
   // handle logic to eagerly connect to the injected ethereum provider, if it exists and has granted access already
   const triedEager = useEagerConnect()
 
@@ -308,6 +314,7 @@ function App() {
         return library
             .getSigner(account)
             .signMessage(`{
+                                "message": "Hello, this is a sign in message!",
                                 "address": "` + account + `",
                                 "uuid": "` + uuid() + `",
                                 "timestamp: ` + new Date().getTime() + `,
