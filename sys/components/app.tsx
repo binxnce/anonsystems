@@ -352,14 +352,14 @@ function App() {
                 <div className="tile is-parent">
                     <article className="tile is-child notification has-background-primary-dark">
                         <p className="title">Hello anon</p>
-                            <Image src={getPortrait(account)} alt="Logo" width="300px" height="300px" className="block is-inline-block"/>
+                            <img src={getPortrait(account)} alt="Logo" width="300px" height="300px" className="block is-inline-block"/>
                     </article>
                 </div>
 
                 <div className="tile is-parent">
                     <article className="tile is-child notification has-background-success-dark">
                         <p className="title">Nothing much here yet</p>
-                        <p className="subtitle">...</p>
+                        <p className="subtitle">Try using different wallets</p>
                         <div className="content">
 
                         </div>
